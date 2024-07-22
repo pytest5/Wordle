@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<<<<<<< HEAD
+    <title>Document</title>
+    <link rel="stylesheet" href='style.css'></link>
+=======
+    <title>Wordle</title>
+    <link rel="stylesheet" href='style.css'></link>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap" rel="stylesheet">
+>>>>>>> add-board-functions
+    <script defer src="app.js"></script>
+</head>
+<body class="global-container">
+    <header class="title">
+<<<<<<< HEAD
+        <h1 class="wrapper">Wordle</h1>
+    </header>
+    <main class="main-container">
+        <div class="board-containter">
+            <div class="board-row">
+                <div class="tile">hi</div>
+                <div class="tile">hi</div>
+                <div class="tile">hi</div>
+                <div class="tile">hi</div>
+                <div class="tile">hi</div>
+                <div class="tile">hi</div>
+            </div>
+            <div class="board-row">
+                <div class="tile">hi</div>
+                <div class="tile">hi</div>
+                <div class="tile">hi</div>
+                <div class="tile">hi</div>
+                <div class="tile">hi</div>
+                <div class="tile">hi</div>
+            </div>
+            <div class="board-row">
+                <div class="tile">hi</div>
+                <div class="tile">hi</div>
+                <div class="tile">hi</div>
+                <div class="tile">hi</div>
+                <div class="tile">hi</div>
+                <div class="tile">hi</div>
+            </div>
+            <div class="board-row">
+                <div class="tile">hi</div>
+                <div class="tile">hi</div>
+                <div class="tile">hi</div>
+                <div class="tile">hi</div>
+                <div class="tile">hi</div>
+                <div class="tile">hi</div>
+            </div>
+            <div class="board-row">
+                <div class="tile">hi</div>
+                <div class="tile">hi</div>
+                <div class="tile">hi</div>
+                <div class="tile">hi</div>
+                <div class="tile">hi</div>
+                <div class="tile">hi</div>
+            </div>
+            <div class="board-row">
+                <div class="tile">hi</div>
+                <div class="tile">hi</div>
+                <div class="tile">hi</div>
+                <div class="tile">hi</div>
+                <div class="tile">hi</div>
+                <div class="tile">hi</div>
+=======
+        <!-- <h1 class="wrapper">Wordle</h1> -->
+    </header>
+    <main class="main-container">
+        <div class="board-containter">
+            <div class="board-row" aria-label="board row 1">
+                <!-- https://stackoverflow.com/questions/22039910/what-is-aria-label-and-how-should-i-use-it
+                aria-label does much the same thing, but it's for those cases where it isn't practical or desirable to have a label on screen -->
+                <input class='tile' id='tile1' type="text" name="tile1" maxlength="1" aria-label="letter 1"/>
+                <input class='tile' id='tile2' type="text" name="tile2" maxlength="1" aria-label="letter 2"/>
+                <input class='tile' id='tile3' type="text" name="tile3" maxlength="1" aria-label="letter 3"/>
+                <input class='tile' id='tile4' type="text" name="tile4" maxlength="1" aria-label="letter 4"/>
+                <input class='tile' id='tile5' type="text" name="tile5" maxlength="1" aria-label="letter 5"/>
+            </div>
+            <div class="board-row" aria-label="board row 2">
+                <!-- https://stackoverflow.com/questions/22039910/what-is-aria-label-and-how-should-i-use-it
+                aria-label does much the same thing, but it's for those cases where it isn't practical or desirable to have a label on screen -->
+                <input class='tile' id='tile1' type="text" name="tile1" maxlength="1" aria-label="letter 1"/>
+                <input class='tile' id='tile2' type="text" name="tile2" maxlength="1" aria-label="letter 2"/>
+                <input class='tile' id='tile3' type="text" name="tile3" maxlength="1" aria-label="letter 3"/>
+                <input class='tile' id='tile4' type="text" name="tile4" maxlength="1" aria-label="letter 4"/>
+                <input class='tile' id='tile5' type="text" name="tile5" maxlength="1" aria-label="letter 5"/>
+            </div>
+            
+            <div class="board-row" aria-label="board row 3">
+                <!-- https://stackoverflow.com/questions/22039910/what-is-aria-label-and-how-should-i-use-it
+                aria-label does much the same thing, but it's for those cases where it isn't practical or desirable to have a label on screen -->
+                <input class='tile' id='tile1' type="text" name="tile1" maxlength="1" aria-label="letter 1"/>
+                <input class='tile' id='tile2' type="text" name="tile2" maxlength="1" aria-label="letter 2"/>
+                <input class='tile' id='tile3' type="text" name="tile3" maxlength="1" aria-label="letter 3"/>
+                <input class='tile' id='tile4' type="text" name="tile4" maxlength="1" aria-label="letter 4"/>
+                <input class='tile' id='tile5' type="text" name="tile5" maxlength="1" aria-label="letter 5"/>
+            </div>
+            <div class="board-row" aria-label="board row 4">
+                <!-- https://stackoverflow.com/questions/22039910/what-is-aria-label-and-how-should-i-use-it
+                aria-label does much the same thing, but it's for those cases where it isn't practical or desirable to have a label on screen -->
+                <input class='tile' id='tile1' type="text" name="tile1" maxlength="1" aria-label="letter 1"/>
+                <input class='tile' id='tile2' type="text" name="tile2" maxlength="1" aria-label="letter 2"/>
+                <input class='tile' id='tile3' type="text" name="tile3" maxlength="1" aria-label="letter 3"/>
+                <input class='tile' id='tile4' type="text" name="tile4" maxlength="1" aria-label="letter 4"/>
+                <input class='tile' id='tile5' type="text" name="tile5" maxlength="1" aria-label="letter 5"/>
+            </div>
+            <div class="board-row" aria-label="board row 5">
+                <!-- https://stackoverflow.com/questions/22039910/what-is-aria-label-and-how-should-i-use-it
+                aria-label does much the same thing, but it's for those cases where it isn't practical or desirable to have a label on screen -->
+                <input class='tile' id='tile1' type="text" name="tile1" maxlength="1" aria-label="letter 1"/>
+                <input class='tile' id='tile2' type="text" name="tile2" maxlength="1" aria-label="letter 2"/>
+                <input class='tile' id='tile3' type="text" name="tile3" maxlength="1" aria-label="letter 3"/>
+                <input class='tile' id='tile4' type="text" name="tile4" maxlength="1" aria-label="letter 4"/>
+                <input class='tile' id='tile5' type="text" name="tile5" maxlength="1" aria-label="letter 5"/>
+            </div>
+            <div class="board-row" aria-label="board row 6">
+                <!-- https://stackoverflow.com/questions/22039910/what-is-aria-label-and-how-should-i-use-it
+                aria-label does much the same thing, but it's for those cases where it isn't practical or desirable to have a label on screen -->
+                <input class='tile' id='tile1' type="text" name="tile1" maxlength="1" aria-label="letter 1"/>
+                <input class='tile' id='tile2' type="text" name="tile2" maxlength="1" aria-label="letter 2"/>
+                <input class='tile' id='tile3' type="text" name="tile3" maxlength="1" aria-label="letter 3"/>
+                <input class='tile' id='tile4' type="text" name="tile4" maxlength="1" aria-label="letter 4"/>
+                <input class='tile' id='tile5' type="text" name="tile5" maxlength="1" aria-label="letter 6"/>
+>>>>>>> add-board-functions
+            </div>
+        </div>
+        <div class="keyboard-containter">
+             <div class="keyboard-row">
+                <div class="key">q</div>
+                <div class="key">w</div>
+                <div class="key">e</div>
+                <div class="key">r</div>
+                <div class="key">t</div>
+                <div class="key">y</div>
+                <div class="key">u</div>
+                <div class="key">i</div>
+                <div class="key">o</div>
+                <div class="key">p</div>
+            </div>
+             <div class="keyboard-row">
+                <div class="key">a</div>
+                <div class="key">s</div>
+                <div class="key">d</div>
+                <div class="key">f</div>
+                <div class="key">g</div>
+                <div class="key">h</div>
+                <div class="key">j</div>
+                <div class="key">k</div>
+                <div class="key">l</div>
+            </div>
+             <div class="keyboard-row">
+                <div class="key">Enter</div>
+                <div class="key">z</div>
+                <div class="key">x</div>
+                <div class="key">c</div>
+                <div class="key">v</div>
+                <div class="key">b</div>
+                <div class="key">n</div>
+                <div class="key">m</div>
+                <div class="key">⌫</div>
+            </div>
+        </div>
+    </main>
+<<<<<<< HEAD
+=======
+    <div class="gameStatus"></div>
+>>>>>>> add-board-functions
+</body>
+</html>
