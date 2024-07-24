@@ -1,529 +1,360 @@
-/*-------------------------------- Constants --------------------------------*/
-const WORDS = {
-  fourLetters: ["glad", "joys", "glee", "hope", "love", "hugs", "play", "good"],
-  fiveLetters: [
-    "peace",
-    "happy",
-    "relax",
-    "stars",
-    "smile",
-    "laugh",
-    "cheer",
-    "merry",
-  ],
-  sixLetters: ["joyful", "smiley", "gaiety", "blithe", "cheery", "jovial"],
-};
-
-const BOARD_ROW_ATTRIBUTES = {
-  class: "board-row",
-  "aria-label": "board row",
-};
-
-const TILE_ATTRIBUTES = {
-  class: "tile",
-  id: "tile",
-  type: "text",
-  name: "tile",
-  maxlength: "1",
-  "aria-label": "letter",
-};
-
-/*---------------------------- Variables (state) ----------------------------*/
-
-const game = {
-  answer: "",
-  dialog: {
-    state: "", // victory, reset, config, insufficient, invalid
-    message: "",
-    buttonMessage: "",
-  },
-  board: [],
-  wordBank: [],
-  currentRowIndex: 0,
-  currentTries: 0,
-  isValidGuess: false,
-  wordLength: 5,
-  maxTries: 7,
-  currentTile: null,
-  previousTiles: [],
-  isBackSpace: false,
-};
-
-// TODO slider for max tries and word length
-// TODO responsive design mobile
-
-/*------------------------ Cached Element References ------------------------*/
-
-renderInitialBoard();
-const gameStatusEle = document.querySelector(".gameStatus");
-const tileEles = document.querySelectorAll(".tile");
-const boardRowEles = document.querySelectorAll(".board-row");
-const refreshBtnEle = document.querySelector(".refresh");
-const modalEle = document.querySelector(".modal");
-const modalCloseBtnEle = document.querySelector(".modal-close-btn");
-const resetBtnEle = document.querySelector(".reset-btn");
-const configBtnEle = document.querySelector(".config-btn");
-/*---------------------------- Render Functions -----------------------------*/
-
-function setGameParams() {
-  game.maxTries = "";
-  game.wordLength = "";
+/*
+  1. Use a more-intuitive box-sizing model.
+*/
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+/*
+  2. Remove default margin
+*/
+* {
+  margin: 0;
+}
+/*
+  Typographic tweaks!
+  3. Add accessible line-height
+  4. Improve text renderingf
+*/
+body {
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+/*
+  5. Improve media defaults
+*/
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+}
+/*
+  6. Remove built-in form typography styles
+*/
+input,
+button,
+textarea,
+select {
+  font: inherit;
+}
+/*
+  7. Avoid text overflows
+*/
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  overflow-wrap: break-word;
+}
+/*
+  8. Create a root stacking context
+*/
+#root,
+#__next {
+  isolation: isolate;
 }
 
-// function setGameStatus(status) {
-//   if (status === "win") {
-//     game.status = { win: true, lose: false, pending: false };
-//   } else if (status === "lose") {
-//     game.status = { win: false, lose: true, pending: false };
-//   } else if (status === "pending") {
-//     game.status = { win: false, lose: false, pending: true };
-//   } else if (status === "error") {
-//     game.status = { win: false, lose: false, pending: true, error: true };
-//   }
-// }
-
-// function sliderInputHandler(e) {
-//   console.log("slider input handler ran");
-//   if (e.target.dataset.sliderType === "word-length") {
-//     game.wordLength = +e.target.value;
-//     renderDialog();
-//   } else if (e.target.dataset.sliderType === "tries") {
-//     game.maxTries = +e.target.value;
-//     renderDialog();
-//   }
-// }
-
-// function renderGameStatus() {
-//   gameStatusEle.innerText = JSON.stringify(game, null, 1);
-// }
-
-function setInitialBoardState() {
-  game.board = [];
-  for (let i = 0; i < game.maxTries; i++) {
-    game.board.push([]);
-  }
-  console.log("setting initial board state...", game);
+html {
+  background-color: black;
+  height: 100%;
 }
 
-function renderTileContents() {
-  const boardRowEles = document.querySelectorAll(".board-row");
-  const currentBoardRow = boardRowEles[game.currentRowIndex];
-  const currentRowTiles = Array.from(currentBoardRow.children);
-  currentRowTiles.forEach(
-    (i, idx) =>
-      (i.value = game.board[game.currentRowIndex][idx]?.toUpperCase() || "")
-  );
+body {
+  height: 100%;
+  padding: 10px;
 }
 
-function renderTileColors(evaluatedGuess) {
-  const boardRowEles = document.querySelectorAll(".board-row");
-  const currentBoardRow = boardRowEles[game.currentRowIndex];
-  const currentRowTiles = Array.from(currentBoardRow.children);
-  currentRowTiles.forEach((i, idx) => i.classList.add(evaluatedGuess[idx]));
+.global-container {
+  display: flex;
+  flex-direction: column;
 }
 
-function renderInitialBoard() {
-  function setRowAttr(ele, attrObj, i) {
-    Object.entries(attrObj).forEach(([k, v]) => {
-      k === "aria-label"
-        ? ele.setAttribute(k, `${v} ${i + 1}`)
-        : ele.setAttribute(k, v);
-    });
-  }
-  function setTileAttr(ele, attrObj, i) {
-    Object.entries(attrObj).forEach(([k, v]) => {
-      k === "aria-label"
-        ? ele.setAttribute(k, `${v} ${i + 1}`)
-        : ["id", "text"].includes(k)
-        ? ele.setAttribute(k, `${v}${i + 1}`)
-        : ele.setAttribute(k, v);
-    });
-  }
-  const boardContainer = document.querySelector(".board-container");
-  boardContainer.innerHTML = "";
-  console.log("rendering initial board", boardContainer);
-  console.log("rendering initial game", game);
-  for (let i = 0; i < game.maxTries; i++) {
-    const rowEle = document.createElement("div");
-    setRowAttr(rowEle, BOARD_ROW_ATTRIBUTES, i);
-    boardContainer.appendChild(rowEle);
-  }
-  const boardRowEles = document.querySelectorAll(".board-row");
-  boardRowEles.forEach((rowEle) => {
-    for (let i = 0; i < game.wordLength; i++) {
-      const tileEle = document.createElement("input");
-      setTileAttr(tileEle, TILE_ATTRIBUTES, i);
-      rowEle.append(tileEle);
-    }
-  });
+.main-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  justify-content: space-around;
+  align-items: center;
 }
 
-function focusFirstTile() {
-  const boardRowEles = document.querySelectorAll(".board-row");
-  const currentBoardRow = boardRowEles[game.currentRowIndex]; // TODO: check
-  const currentRowTiles = Array.from(currentBoardRow.children);
-  currentRowTiles[0].focus();
+.title {
+  color: deeppink;
 }
 
-/*-------------------------------- Functions --------------------------------*/
-
-function setBoardState(type, letter) {
-  if (!type)
-    throw new Error(
-      "Error in setBoardState: 'type' is undefined. Expected 'delete' or 'add'"
-    );
-  if (type === "add" && !letter)
-    throw new Error(
-      "Error in setBoardState: 'letter' is undefined. Expected a letter or 'e.target.value' when type is 'add'"
-    );
-  let currentGuess = game.board[game.currentRowIndex];
-  type === "delete" ? currentGuess.pop() : currentGuess.push(letter);
-  game.board[game.currentRowIndex] = currentGuess;
-  console.log("setting board state", game.board);
+.board-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  padding: 0px 10px;
+  padding-top: 10px;
+  align-self: center;
 }
 
-function evaluateGuess(arr) {
-  console.log("game.answer", game.answer);
-  const evaluatedGuess = arr.reduce(
-    (a, c, i) =>
-      c === game.answer[i]
-        ? a.concat("correct")
-        : game.answer.includes(c)
-        ? a.concat("exists")
-        : a.concat("wrong"),
-    []
-  );
-  if (evaluatedGuess.every((i) => i === "correct")) {
-    setShowDialog("victory");
-    modalEle.showModal();
-    // renderDialog("victory");
-    // do something
-  }
-  renderTileColors(evaluatedGuess);
+.keyboard-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px 0px;
 }
 
-function generateAnswer() {
-  const randomIdx = Math.floor(Math.random() * game.wordBank.length);
-  const randomAnswer = game.wordBank[randomIdx];
-  game.answer = randomAnswer;
-  return;
+.board-row {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
 }
 
-function cachePreviousTiles() {
-  if (game.board[game.currentRowIndex].length < game.wordLength + 1) {
-    game.previousTiles.push(document.activeElement);
-  } else {
-    console.log("Something went wrong");
+.tile {
+  flex: 1;
+  aspect-ratio: 1/1;
+  text-align: center;
+  font-size: 24px;
+  font-weight: 900;
+  min-width: 0px;
+  max-width: 65px;
+  border-radius: 10px;
+  /* border: 2px solid deeppink; */
+}
+
+.keyboard-containter {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.keyboard-row {
+  display: flex;
+  gap: 5px;
+  justify-content: center;
+  height: 58px;
+  &:nth-of-type(2) {
+    margin: 0 16px;
   }
 }
 
-function generateWordBank(wordLength) {
-  /* Generate a word bank (4 letters, 5 letters, 6 letters) based on user supplied word length */
-  let key = "";
-  switch (wordLength) {
-    case 4:
-      key = "fourLetters";
-      break;
-    case 5:
-      key = "fiveLetters";
-      break;
-    case 6:
-      key = "sixLetters";
-      break;
-    default:
-      console.log("error");
+.key {
+  flex: 1;
+  font-size: 1.25em;
+  display: flex;
+  font-weight: bold;
+  justify-content: center;
+  align-items: center;
+  border-radius: 5px;
+  background-color: white;
+  text-transform: uppercase;
+}
+
+.keyboard-row:nth-of-type(3) .key:nth-of-type(1) {
+  font-size: 12px;
+  flex: 1.5;
+}
+
+.keyboard-row:nth-of-type(3) .key:last-of-type {
+  font-size: 12px;
+  font-size: 18px;
+  flex: 1.5;
+}
+
+.gameStatus {
+  width: 100vw;
+  text-align: left;
+}
+
+body {
+  display: flex;
+  font-family: "Lato", sans-serif;
+}
+
+@keyframes flip {
+  0% {
+    transform: scaleY(1);
   }
-  game.wordBank = WORDS[key];
-  return;
-}
 
-function updateTries() {
-  if (!game.isValidGuess) return;
-  game.currentTries++;
-}
-
-function disableTiles(rowEle) {
-  // TODO: convert to MVC single source?
-  Array.from(rowEle.children).forEach((i) => (i.disabled = true));
-}
-
-function enableTiles(rowEle) {
-  // TODO: convert to MVC single source?
-  Array.from(rowEle.children).forEach((i) => {
-    i.disabled = false;
-  });
-}
-
-// TODO: disable slider when game in progress?
-function init() {
-  setInitialBoardState();
-  registerTileEventListeners();
-  generateWordBank(game.wordLength);
-  generateAnswer(game.wordLength);
-  focusFirstTile();
-  console.log(game);
-}
-
-// function focusNextTile(ele) {
-//   if (!ele.value) return;
-//   ele.nextElementSibling?.focus();
-// }
-
-function focusPreviousTile() {
-  // TODO this needs improvement esp after closing modal...
-  if (game.previousTiles.length < 2) return;
-  game.previousTiles.at(-1).focus();
-}
-
-function checkGuessValidity(rowEle) {
-  const currentGuessString = game.board[game.currentRowIndex].join("");
-  if (game.board[game.currentRowIndex].length < game.wordLength) {
-    game.isValidGuess = false;
-    setShowDialog("insufficient");
-    enableTiles(rowEle);
-    focusPreviousTile();
-    return;
-  } else if (!game.wordBank.includes(currentGuessString)) {
-    game.isValidGuess = false;
-    setShowDialog("invalid");
-    // window.alert(`${currentGuessString} is not a word`); // check validity
-    enableTiles(rowEle);
-    focusPreviousTile();
-    return;
-  } else {
-    console.log("Guess is valid!");
-    disableTiles(rowEle);
-    game.isValidGuess = true;
-    console.log("Setting guess to valid", game.isValidGuess);
+  50% {
+    background: white;
+    transform: scaleY(0);
   }
-}
-/*----------------------------- Event Listeners -----------------------------*/
-// TODO solve bug when enter pressed too many times consecutively...
+  60% {
+    background: black;
+  }
 
-//// NEW EVENT LISTENERS //////
-
-function setShowDialog(state) {
-  switch (state) {
-    case "victory":
-      game.dialog.state = "victory";
-      game.dialog.message = "You won!";
-      game.dialog.buttonMessage = "Play again";
-      renderDialog("victory");
-      modalEle.showModal();
-      break;
-    case "reset":
-      game.dialog.state = "reset";
-      game.dialog.message = "Do you want to reset the game?";
-      game.dialog.buttonMessage = "Reset";
-      renderDialog("reset");
-      modalEle.showModal();
-      break;
-    case "config":
-      game.dialog.state = "config";
-      game.dialog.message = "Configuring game";
-      game.dialog.buttonMessage = "Config";
-      renderDialog("config");
-      modalEle.showModal();
-      break;
-    case "insufficient":
-      game.dialog.state = "insufficient";
-      game.dialog.message = "Insufficient letters!";
-      game.dialog.buttonMessage = "Ok";
-      renderDialog("insufficient");
-      modalEle.showModal();
-      break;
-    case "invalid":
-      game.dialog.state = "invalid";
-      game.dialog.message = "Invalid word!";
-      game.dialog.buttonMessage = "Ok";
-      renderDialog("invalid");
-      modalEle.showModal();
-      break;
-    case "false":
-      game.dialog.state = "";
-      game.dialog.message = "";
-      game.dialog.buttonMessage = "";
-      modalEle.close();
-      break;
+  100% {
+    transform: scaleY(1);
   }
 }
 
-function wordLengthEventHandler(val) {
-  game.wordLength = +val;
-  renderWordLengthValue();
-  renderInitialBoard();
+.flip-0 {
+  animation: flip 500ms ease forwards;
+}
+.flip-1 {
+  animation: flip 1000ms ease forwards;
+}
+.flip-2 {
+  animation: flip 1500ms ease forwards;
+}
+.flip-3 {
+  animation: flip 2000ms ease forwards;
+}
+.flip-4 {
+  animation: flip 2500ms ease forwards;
 }
 
-function maxTriesEventHandler(val) {
-  game.maxTries = +val;
-  renderMaxTriesValue();
-  renderInitialBoard();
+.wrong {
+  background-color: grey;
+  color: white;
 }
 
-function renderWordLengthValue() {
-  const sliderValueEle = document.querySelector(".slider-word-length-value");
-  sliderValueEle.innerText = game.wordLength;
+.correct {
+  background-color: #84a59d;
+  color: #f7ede2;
 }
 
-function renderMaxTriesValue() {
-  const sliderValueEle = document.querySelector(".slider-tries-value");
-  sliderValueEle.innerText = game.maxTries;
+.exists {
+  background-color: #f6bd60;
+  color: #f7ede2;
 }
 
-function renderDialog(type = "") {
-  const modalMessageEle = document.querySelector(".modal-message");
-  const modalActionBtnEle = document.querySelector(".modal-action-btn");
-  modalActionBtnEle.addEventListener("click", modalActionBtnHandler);
-  if (game.dialog.state === "config") {
-    modalMessageEle.innerHTML = `<div class="slider-wrapper">
-        <div class="slider">
-          <label class="slider-label">Word length:&nbsp;</label>
-          <input data-slider-type='word-length' class="slider-input" type="range" min="4" max="6" value="5" step="1" oninput="wordLengthEventHandler(this.value)"
-  onchange="wordLengthEventHandler(this.value)"/>
-          <span class="slider-word-length-value">${game.wordLength}</span>
-        </div>
-        <div class="slider">
-          <label class="slider-label">Tries:&nbsp;</label>
-          <input data-slider-type="tries" class="slider-input" type="range" min="4" max="7" value="6" step="1" oninput="maxTriesEventHandler(this.value)"
-  onchange="maxTriesEventHandler(this.value)"/>
-          <span class="slider-tries-value">${game.maxTries}</span>
-        </div>
-      </div>`;
-    modalActionBtnEle.innerText = game.dialog.buttonMessage;
-    return;
-  }
-  function modalActionBtnHandler() {
-    if (type === "reset") {
-      modalEle.close();
-      game.currentRowIndex = 0;
-      renderInitialBoard();
-      init();
-    } else if (type === "victory") {
-      modalEle.close();
-      renderInitialBoard();
-      init();
-    } else if (type === "config") {
-      modalEle.close();
-      game.currentRowIndex = 0;
-      renderInitialBoard();
-      init();
-    } else if (type === "invalid" || type === "insufficient") {
-      modalEle.close();
-      return; // TODO TODO
-    } else {
-      console.log("modal action btn handler error");
-    }
-  }
-  modalMessageEle.innerText = game.dialog.message;
-  modalActionBtnEle.innerText = game.dialog.buttonMessage;
+.wrong {
+  background-color: #4d5382;
+  color: #f7ede2;
+  /* color: black; */
 }
 
-resetBtnEle.addEventListener("click", (e) => {
-  setShowDialog("reset");
-});
+/* Modal */
 
-configBtnEle.addEventListener("click", (e) => {
-  setShowDialog("config");
-});
-
-modalCloseBtnEle.addEventListener("click", (e) => {
-  modalEle.close();
-});
-
-function registerTileEventListeners() {
-  const boardRowEles = document.querySelectorAll(".board-row");
-  boardRowEles.forEach((rowEle) =>
-    // converts html collection to array
-    Array.from(rowEle.children).forEach((tileEle) => {
-      console.log("registering tile ele");
-      tileEle.addEventListener("keydown", (e) => keyDownHandler(e, rowEle));
-      tileEle.addEventListener("input", inputEventHandler);
-      tileEle.addEventListener("keyup", keyUpHandler);
-    })
-  );
+.modal {
+  margin: auto;
+  border-radius: 12px;
+  border: none;
+  width: min(80vw, 350px);
+  padding: 20px;
 }
 
-function backSpaceHandler(e) {
-  if (e.repeat) {
-    console.log("returning from backSpaceHandler");
-    return;
-  }
-  if (e.key === "Backspace") {
-    game.isBackSpace = true;
-    setBoardState("delete");
-    renderTileContents();
-    console.log("exiting from backSpaceHandler");
-  } else {
-    game.isBackSpace = false;
-    console.log("exiting from backSpaceHandler");
-  }
-  console.log("exiting from backSpaceHandler");
+.modal-contents {
+  display: flex;
+  flex-direction: column;
+  /* align-items: center; */
+  gap: 20px;
 }
 
-function enterKeyHandler(e, rowEle) {
-  if (e.repeat || e.key !== "Enter") {
-    console.log("exiting from enterKeyHandler");
-    return;
-  }
-  checkGuessValidity(rowEle);
-  console.log("exiting from enterKeyHandler");
-
-  if (!game.isValidGuess) {
-    console.log("exiting from enterKeyHandler");
-    return;
-  }
-  evaluateGuess(game.board[game.currentRowIndex]);
-  console.log("exiting from enterKeyHandler");
-  game.currentRowIndex++; //TODO put in func
-  focusFirstTile();
-  updateTries();
-  console.log("exiting from enterKeyHandler");
+.modal-message {
+  font-size: 18px;
+  font-weight: 600;
 }
 
-function keyDownHandler(e, rowEle) {
-  if (e.key === "Backspace") {
-    backSpaceHandler(e);
-    return;
-  }
-  if (e.key === "Enter") {
-    enterKeyHandler(e, rowEle);
-    return;
-  }
-  const input = String.fromCharCode(e.keyCode);
-  if (!/^[a-zA-Z]*$/.test(input)) {
-    /* https://stackoverflow.com/questions/2257070/detect-numbers-or-letters-with-jquery-javascript */
-    return;
-  }
-  game.isBackSpace = false;
-  cachePreviousTiles();
-  e.target.nextElementSibling?.focus();
-}
-
-function inputEventHandler(e) {
-  if (game.isBackSpace) {
-    return;
-  }
-  if (game.board[game.currentRowIndex].length < game.wordLength + 1) {
-    setBoardState("add", e.target.value);
-    // e.target.nextElementSibling?.focus();
-    renderTileContents();
-    return;
+.modal-close-btn {
+  border: none;
+  height: 20px;
+  width: 20px;
+  background-color: white;
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  & svg {
+    fill: rgb(101, 80, 185);
   }
 }
 
-// TODO on window focus then focus last active
-// disbale on focus next for non alphabets
-
-function keyUpHandler(e) {
-  if (e.key === "Backspace") {
-    // console.log("keyup ran...");
-    game.isBackSpace = true;
-    e.target.previousElementSibling?.focus();
-    return;
-  } else {
-    game.isBackSpace = false;
-    return;
-  }
+.dialog-action-btn {
+  background-color: rgb(214, 241, 223);
+  color: rgb(33, 131, 88);
+  border: none;
+  border-radius: 4px;
+  padding: 6px 15px;
+  font-size: 15px;
+  font-weight: 500;
 }
 
-init();
+.modal *:focus {
+  outline: none !important;
+  border: 1px solid rgb(33, 131, 88);
+  box-shadow: 0 0 10px rgb(33, 131, 88);
+}
+
+/* .close-icon svg {
+} */
+
+::backdrop {
+  /* background-image: linear-gradient(
+    45deg,
+    magenta,
+    rebeccapurple,
+    dodgerblue,
+    green
+  ); */
+  background-color: black;
+  opacity: 0.85;
+}
+
+.slider-wrapper {
+  flex-direction: column;
+  display: flex;
+  gap: 2px;
+}
+
+.slider-header {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+.slider {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: 1fr 1fr;
+  justify-content: space-between;
+  font-size: 16px;
+  align-items: baseline;
+}
+
+.slider-label {
+  grid-row: 1;
+  grid-column: 1;
+  color: hsl(0, 0%, 70%);
+}
+.slider-input {
+  grid-row: 2;
+  grid-column: 1 / span 2;
+  color: red;
+}
+
+.slider .value {
+  grid-row: 1;
+  grid-column: 2;
+  font-size: 24px;
+  padding-left: 20px;
+}
+
+input[type="range"] {
+  accent-color: #84a59d;
+}
+
+nav {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 10px 10px 10px;
+  align-items: center;
+  border-bottom: 0.5px solid deeppink;
+}
+
+@media (min-width: calc(550px/16)) {
+  .board-container {
+    max-width: 380px;
+  }
+
+  .keyboard-container {
+    width: min(550px, 100%);
+  }
+
+  /* .material-icons TODO
+    font-size: 32px;
+  } */
+}
