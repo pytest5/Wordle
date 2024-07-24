@@ -37,6 +37,33 @@ export function evaluateUserGuess(userGuessArr) {
   );
   console.log(duplicatedLettersInGameAnswerObj); // 'banal' ====> {a :2}
 
+  function isInAnyCorrectPosition(firstArr, secondArr, letter) {
+    const indexOfLetterInFirstArr = firstArr.reduce(
+      (a, c, idx) => (letter === c ? a.concat(idx) : a),
+      []
+    );
+    const indexOfLetterInSecondArr = secondArr.reduce(
+      (a, c, idx) => (letter === c ? a.concat(idx) : a),
+      []
+    );
+    return (
+      indexOfLetterInFirstArr.filter((i) =>
+        indexOfLetterInSecondArr.includes(i)
+      ).length > 0
+    );
+  }
+
+  function existsInAnswer(arr, letter) {
+    return arr.includes(letter);
+  }
+
+  console.log(
+    "HERE",
+    isInAnyCorrectPosition(game.answer.split(""), userGuessArr, "n")
+  );
+
+  let hasAccountedForTwoDupeGuessLetterBothWrongPosition = false;
+
   const result = userGuessArr.reduce((a, c, idx) => {
     console.log(idx);
     console.log(c);
@@ -60,25 +87,47 @@ export function evaluateUserGuess(userGuessArr) {
         duplicatedLettersInGameAnswerObj[currentAnswerLetter];
     }
 
+    ///
+
+    function existsMoreInGuessThanAnswer() {
+      return (
+        currentGuessLetterDupeCount >
+        game.answer
+          .split("")
+          .reduce((acc, cur) => (cur === c ? acc.concat(cur) : acc), []).length
+      );
+    }
+
     if (c === game.answer[idx]) {
       return a.concat("correct");
+    } else if (
+      !hasAccountedForTwoDupeGuessLetterBothWrongPosition &&
+      isCurrentGuessLetterDupe &&
+      !isInAnyCorrectPosition(game.answer.split(""), userGuessArr, c) &&
+      existsInAnswer(game.answer.split(""), c)
+    ) {
+      hasAccountedForTwoDupeGuessLetterBothWrongPosition = true;
+      console.log("EXISTS 0");
+      return a.concat("exists");
+    } else if (
+      isCurrentGuessLetterDupe &&
+      existsInAnswer(game.answer.split(""), c) &&
+      existsMoreInGuessThanAnswer()
+    ) {
+      console.log("WRONG -1");
+      return a.concat("wrong");
     } else if (
       isCurrentGuessLetterDupe &&
       game.answer.split("").includes(c) &&
       userGuessArr.slice(0, idx + 1).filter((i) => i === c).length < 2
     ) {
+      console.log("EXISTS 3");
       return a.concat("exists");
-    } else if (
-      isCurrentGuessLetterDupe &&
-      currentGuessLetterDupeCount >
-        game.answer
-          .split("")
-          .reduce((acc, cur) => (cur === c ? acc.concat(cur) : acc), []).length
-    ) {
-      return a.concat("wrong");
-    } else if (game.answer.split("").includes(c)) {
+    } else if (existsInAnswer(game.answer.split(""), c)) {
+      console.log("EXISTS 4");
       return a.concat("exists");
-    } else if (!game.answer.split("").includes(c)) {
+    } else if (!existsInAnswer(game.answer.split(""), c)) {
+      console.log("WRONG 2");
       return a.concat("wrong");
     } else {
       return a.concat("tbd");
@@ -89,12 +138,11 @@ export function evaluateUserGuess(userGuessArr) {
 }
 
 console.log(
-  evaluateUserGuess(game.board[game.currentRowIndex]),
+  evaluateUserGuess(userGuess),
   "guess:",
-  `${game.board[0]}`,
+  `${userGuess}`,
   "//",
   "answer:",
   "banal"
 );
-
 // module.exports = { evaluateUserGuess };

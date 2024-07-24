@@ -1,0 +1,23 @@
+{
+  "name": "wordle",
+  "version": "1.0.0",
+  "description": "<img src='assets/gxm0fbyjo8a81.webp'/>",
+  "main": "app.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pytest5/wordle.git"
+  },
+  "author": "z",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/pytest5/wordle/issues"
+  },
+  "homepage": "https://github.com/pytest5/wordle#readme",
+  "dependencies": {
+    "vite": "^5.3.4"
+  }
+}
