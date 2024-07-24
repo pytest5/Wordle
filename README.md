@@ -1,4 +1,4 @@
-## Rules governing repeated letters in Wordle
+## Rules governing repeated letters in Wordle (work in progress helper.js)
 
 <img src='assets/gxm0fbyjo8a81.webp'/>
 
