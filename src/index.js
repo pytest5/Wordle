@@ -63,7 +63,6 @@ const game = {
 /*------------------------ Cached Element References ------------------------*/
 
 renderInitialBoard();
-console.log("global render initial board");
 const gameStatusEle = document.querySelector(".gameStatus");
 const tileEles = document.querySelectorAll(".tile");
 const boardRowEles = document.querySelectorAll(".board-row");
@@ -106,7 +105,7 @@ function setInitialBoardState() {
   for (let i = 0; i < game.maxTries; i++) {
     game.board.push([]);
   }
-  console.log("setting initial board state...", game);
+  // console.log("setting initial board state...", game);
 }
 
 function renderTileContents() {
@@ -148,8 +147,6 @@ function renderInitialBoard() {
   }
   const boardContainer = document.querySelector(".board-container");
   boardContainer.innerHTML = "";
-  console.log("rendering initial board", boardContainer);
-  console.log("rendering initial game", game);
   for (let i = 0; i < game.maxTries; i++) {
     const rowEle = document.createElement("div");
     setRowAttr(rowEle, BOARD_ROW_ATTRIBUTES, i);
@@ -186,7 +183,6 @@ function setBoardState(type, letter) {
   let currentGuess = game.board[game.currentRowIndex];
   type === "delete" ? currentGuess.pop() : currentGuess.push(letter);
   game.board[game.currentRowIndex] = currentGuess;
-  console.log("setting board state", game.board);
 }
 
 function evaluateGuess(arr) {
@@ -225,15 +221,50 @@ function renderKeyBoardColors() {
     (a, c) => a.concat(c),
     []
   );
-  const guessObj = flattenedBoard.reduce(
-    (a, c, i) => ({ ...a, [c]: flattenedEvaluatedBoard[i] }),
-    {}
-  );
+  console.log({ flattenedEvaluatedBoard });
+  const guessObj = flattenedBoard.reduce((a, c, i) => {
+    if (
+      flattenedEvaluatedBoard[i] !== "correct" &&
+      flattenedBoard.slice(0, i).includes(c) &&
+      flattenedEvaluatedBoard[flattenedBoard.slice(0, i).indexOf(c)] ===
+        "correct"
+    ) {
+      // console.log("YO", flattenedBoard.slice(0, i), c, "index:", i);
+      return { ...a, [c]: "correct" };
+    } else if (
+      flattenedEvaluatedBoard[i] !== "correct" &&
+      flattenedBoard.slice(0, i).includes(c) &&
+      flattenedEvaluatedBoard[flattenedBoard.slice(0, i).indexOf(c)] ===
+        "exists"
+    ) {
+      return { ...a, [c]: "exists" };
+    } else {
+      return { ...a, [c]: flattenedEvaluatedBoard[i] };
+    }
+  }, {});
+  // const guessObj = flattenedBoard.reduce(
+  //   (a, c, i) =>
+  //     flattenedEvaluatedBoard[i] === "correct"
+  //       ? a
+  //       : { ...a, [c]: flattenedEvaluatedBoard[i] },
+  //   {}
+  // );
+  // const guessObj = flattenedBoard.reduce(
+  //   (a, c, i) => ({ ...a, [c]: flattenedEvaluatedBoard[i] }),
+  //   {}
+  // );
   const keyBoardKeys = document.querySelectorAll(".key");
   console.log({ guessObj });
   keyBoardKeys.forEach((i) => {
     if (Object.keys(guessObj).includes(i.innerText.toLowerCase())) {
-      i.classList.add(guessObj[i.innerText.toLowerCase()]);
+      console.log(
+        "adding ",
+        guessObj[i.innerText.toLowerCase()],
+        " to ",
+        i.innerText
+      );
+      i.classList = `key ${guessObj[i.innerText.toLowerCase()]}`;
+      // i.classList.add(guessObj[i.innerText.toLowerCase()]);
     } else {
       return;
     }
@@ -633,7 +664,6 @@ function keyUpHandler(e) {
 function evaluateUserGuess(userGuessArr) {
   // accepts user's current guess in the form of an usersGuessay
   function findDuplicateLetters(arg) {
-    console.log(arg);
     return arg.reduce(
       (a, c) =>
         arg.filter((i) => i === c).length > 1
@@ -682,9 +712,6 @@ function evaluateUserGuess(userGuessArr) {
   let hasAccountedForTwoDupeGuessLetterBothWrongPosition = false;
 
   const result = userGuessArr.reduce((a, c, idx) => {
-    console.log(idx);
-    console.log(c);
-    console.log(game.answer[idx]);
     // GUESS alloy
     const isCurrentGuessLetterDupe = Object.keys(
       findDuplicateLetters(userGuessArr)
@@ -724,34 +751,36 @@ function evaluateUserGuess(userGuessArr) {
       existsInAnswer(game.answer.split(""), c)
     ) {
       hasAccountedForTwoDupeGuessLetterBothWrongPosition = true;
-      console.log("EXISTS 0");
+      // console.log("EXISTS 0");
       return a.concat("exists");
     } else if (
       isCurrentGuessLetterDupe &&
       existsInAnswer(game.answer.split(""), c) &&
       existsMoreInGuessThanAnswer()
     ) {
-      console.log("WRONG -1");
+      // console.log("WRONG -1");
       return a.concat("wrong");
     } else if (
       isCurrentGuessLetterDupe &&
       game.answer.split("").includes(c) &&
       userGuessArr.slice(0, idx + 1).filter((i) => i === c).length < 2
     ) {
-      console.log("EXISTS 3");
+      // console.log("EXISTS 3");
       return a.concat("exists");
     } else if (existsInAnswer(game.answer.split(""), c)) {
-      console.log("EXISTS 4");
+      // console.log("EXISTS 4");
       return a.concat("exists");
     } else if (!existsInAnswer(game.answer.split(""), c)) {
-      console.log("WRONG 2");
+      // console.log("WRONG 2");
       return a.concat("wrong");
     } else {
       return a.concat("tbd");
     }
   }, []);
 
-  game.evaluatedBoard.push(result);
+  game.evaluatedBoard = [...game.evaluatedBoard, result];
+  // game.evaluatedBoard.push(result);
+  console.log("evaluatedBoard", game.evaluatedBoard);
   if (
     result.every((i) => i === "correct") &&
     game.currentTries <= game.maxTries
