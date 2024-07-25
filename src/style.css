@@ -281,7 +281,7 @@ body {
   color: rgb(101, 99, 109);
   font-size: 15px;
   line-height: 1.5;
-  margin: 10px 0px 23px;
+  margin: 9px 0px 21px;
 }
 
 .modal-close-btn {
@@ -347,10 +347,15 @@ body {
   align-items: baseline;
 }
 
+.slider:first-of-type {
+  margin-bottom: -12px;
+}
+
 .slider-label {
   grid-row: 1;
   grid-column: 1;
-  color: hsl(0, 0%, 65%);
+  color: rgb(101, 99, 109);
+  font-size: 15px;
 }
 .slider-input {
   grid-row: 2;
