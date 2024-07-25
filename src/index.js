@@ -63,10 +63,7 @@ function renderTileContents() {
   const boardRowEles = document.querySelectorAll(".board-row");
   const currentBoardRow = boardRowEles[game.currentRowIndex];
   const currentRowTiles = Array.from(currentBoardRow.children);
-  console.log("rendering current row tiles", currentRowTiles);
-  console.log("rendering game board", game.board);
   currentRowTiles.forEach((i, idx) => {
-    console.log("rendering tile ", idx, game.board[game.currentRowIndex]);
     i.value = game.board[game.currentRowIndex][idx]?.toUpperCase() || "";
   });
 }
@@ -118,8 +115,6 @@ function focusFirstTile() {
   const boardRowEles = document.querySelectorAll(".board-row");
   const currentBoardRow = boardRowEles[game.currentRowIndex]; // TODO: check
   const currentRowTiles = Array.from(currentBoardRow?.children);
-  console.log("focusing first tile", currentRowTiles[0]);
-
   currentRowTiles[0].focus();
 }
 
@@ -137,12 +132,10 @@ function setBoardState(type, letter) {
   let currentGuess = game.board[game.currentRowIndex];
   if (type === "delete") {
     currentGuess.pop();
-    console.log("POPPING OUT OF BOARD STATE");
   } else if (type === "add") {
     currentGuess.push(letter);
-    console.log("PUSHING INTO BOARD STATE");
   } else {
-    console.log("PUSHING ERROR");
+    console.log("set board state error");
   }
 
   game.board[game.currentRowIndex] = currentGuess;
@@ -238,8 +231,6 @@ function generateAnswer() {
 
 function cachePreviousTiles() {
   if (game.board[game.currentRowIndex].length < game.wordLength + 1) {
-    console.log("caching", document.activeElement);
-
     game.previousTiles.push(document.activeElement);
   } else {
     console.log("Something went wrong");
@@ -297,12 +288,6 @@ function init() {
 
 function focusPreviousTile() {
   // TODO this needs improvement esp after closing modal...
-
-  // if (game.previousTiles.length < 2) {
-  //   return;
-  // }
-  // game.previousTiles.at(-1).focus();
-  // document.activeElement.focus();
   const lastActiveTile = game.previousTiles.at(-1);
   if (lastActiveTile) {
     lastActiveTile.focus();
@@ -311,7 +296,6 @@ function focusPreviousTile() {
 
 function checkGuessValidity(rowEle) {
   const currentGuessString = game.board[game.currentRowIndex].join("");
-  console.log({ currentGuessString });
   if (game.board[game.currentRowIndex].length < game.wordLength) {
     game.isValidGuess = false;
     setShowDialog("insufficient");
@@ -575,35 +559,24 @@ function keyDownHandler(e, rowEle) {
   }
   game.isBackSpace = false;
   cachePreviousTiles();
-  console.log("FINAL BASE OF KEY DOWN HANDLER");
   if (e.target.nextElementSibling) {
-    console.log("e.target", e.target);
-    console.log("current active", document.activeElement);
-    console.log("e.target.nextElementSibling", e.target.nextElementSibling);
-    console.log("focusing on this now: ", e.target.nextElementSibling);
     e.target.nextElementSibling.focus();
   } else {
     e.target.focus();
-    console.log("no nextSibling, focusing self,", e.target);
   }
 }
 
 function inputEventHandler(e) {
-  console.log("INPUT HANDLER RUNNING");
-
   if (game.isBackSpace) {
-    console.log("RETURNING FROM PUSHING");
     return;
   }
   if (game.board[game.currentRowIndex].length < game.wordLength) {
-    console.log("SETTING PUSHING STATE");
     setBoardState("add", e.target.value);
     // e.target.nextElementSibling?.focus();
-    console.log("SETTING BOARD STATE", game.board);
     renderTileContents();
     return;
   } else if (e.target.maxLength === e.target.value.length) {
-    console.log("PUSHING FAILED");
+    console.log("max length reached");
   }
 }
 
@@ -721,7 +694,6 @@ function evaluateUserGuess(userGuessArr) {
   }, []);
 
   game.evaluatedBoard = [...game.evaluatedBoard, result];
-  console.log("evaluatedBoard", game.evaluatedBoard);
   if (
     result.every((i) => i === "correct") &&
     game.currentTries <= game.maxTries
