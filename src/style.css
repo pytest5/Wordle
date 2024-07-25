@@ -241,13 +241,18 @@ body {
 .modal-contents {
   display: flex;
   flex-direction: column;
-  /* align-items: center; */
-  gap: 20px;
+}
+
+.modal-header {
+  font-size: 18px;
+  font-weight: 700;
 }
 
 .modal-message {
-  font-size: 18px;
-  font-weight: 600;
+  color: rgb(101, 99, 109);
+  font-size: 15px;
+  line-height: 1.5;
+  margin: 10px 0px 23px;
 }
 
 .modal-close-btn {
@@ -270,7 +275,7 @@ body {
   border-radius: 4px;
   padding: 6px 15px;
   font-size: 15px;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .modal *:focus {
@@ -298,12 +303,7 @@ body {
   flex-direction: column;
   display: flex;
   gap: 2px;
-}
-
-.slider-header {
-  font-size: 18px;
-  font-weight: 700;
-  margin-bottom: 20px;
+  margin: -2px 0px 0px;
 }
 
 .slider {
@@ -318,7 +318,7 @@ body {
 .slider-label {
   grid-row: 1;
   grid-column: 1;
-  color: hsl(0, 0%, 70%);
+  color: hsl(0, 0%, 65%);
 }
 .slider-input {
   grid-row: 2;
@@ -329,12 +329,14 @@ body {
 .slider .value {
   grid-row: 1;
   grid-column: 2;
-  font-size: 24px;
+  font-size: 20px;
   padding-left: 20px;
 }
 
 input[type="range"] {
-  accent-color: #84a59d;
+  accent-color: rgb(91, 91, 95);
+  /* -webkit-appearance: none; */
+  background-color: white;
 }
 
 nav {
@@ -343,6 +345,12 @@ nav {
   padding: 0 10px 10px 10px;
   align-items: center;
   border-bottom: 0.5px solid deeppink;
+}
+.modal-close-btn:hover,
+.dialog-action-btn:hover,
+.reset-btn:hover,
+.config-btn:hover {
+  cursor: pointer;
 }
 
 @media (min-width: calc(550px/16)) {
