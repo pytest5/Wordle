@@ -128,6 +128,8 @@ body {
   font-size: 24px;
   font-weight: 900;
   min-width: 0px;
+  caret-color: transparent;
+
   /* max-height: 52px; */
 
   /* width: 0px; */
@@ -198,9 +200,9 @@ body {
     background: white;
     transform: scaleY(0);
   }
-  60% {
+  /* 60% {
     background: black;
-  }
+  } */
 
   100% {
     transform: scaleY(1);
