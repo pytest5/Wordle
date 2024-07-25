@@ -2,24 +2,26 @@
 // import { evaluateUserGuess } from "./helper.js";
 
 /*-------------------------------- Constants --------------------------------*/
-const WORDS = {
-  fourLetters: ["glad", "joys", "glee", "hope", "love", "hugs", "play", "good"],
-  fiveLetters: [
-    "peace",
-    "happy",
-    "relax",
-    "stars",
-    "smile",
-    "laugh",
-    "cheer",
-    "merry",
-    "alloy",
-    "annal",
-    "annul",
-    "banal",
-  ],
-  sixLetters: ["joyful", "smiley", "gaiety", "blithe", "cheery", "jovial"],
-};
+// const WORDS = {
+//   fourLetters: ["glad", "joys", "glee", "hope", "love", "hugs", "play", "good"],
+//   fiveLetters: [
+//     "peace",
+//     "happy",
+//     "relax",
+//     "stars",
+//     "smile",
+//     "laugh",
+//     "cheer",
+//     "merry",
+//     "alloy",
+//     "annal",
+//     "annul",
+//     "banal",
+//   ],
+//   sixLetters: ["joyful", "smiley", "gaiety", "blithe", "cheery", "jovial"],
+// };
+
+import { WORDS } from "./prod-data.js";
 
 const BOARD_ROW_ATTRIBUTES = {
   class: "board-row",
@@ -445,8 +447,9 @@ function setShowDialog(state) {
     case "victory":
       game.dialog = {
         state: "victory",
-        message: "You won!",
-        buttonMessage: "Play again",
+        header: "You win!",
+        message: `Awesome job! The word is "${game.answer}". Enjoy your victory!`,
+        buttonMessage: "Try another word",
       };
       renderDialog("victory");
       modalActionBtnEle.addEventListener("click", dialogActionHandler);
@@ -455,8 +458,9 @@ function setShowDialog(state) {
     case "defeat":
       game.dialog = {
         state: "defeat",
-        message: "Sorry you ran out of tries.",
-        buttonMessage: "Try again!",
+        header: "Out of Attempts",
+        message: `Sorry, you ran out of tries. The word was "${game.answer}". Better luck next time!`,
+        buttonMessage: "Try again",
       };
       renderDialog("victory");
       modalActionBtnEle.addEventListener("click", dialogActionHandler);
@@ -465,6 +469,7 @@ function setShowDialog(state) {
     case "reset":
       game.dialog = {
         state: "reset",
+        header: "Reset Game?",
         message: "Do you want to reset the game?",
         buttonMessage: "Reset",
       };
@@ -475,8 +480,9 @@ function setShowDialog(state) {
     case "config":
       game.dialog = {
         state: "config",
-        message: "Configuring game",
-        buttonMessage: "Lets go!",
+        header: "Configure Game",
+        message: "Configuring game settings.",
+        buttonMessage: "Save Settings",
       };
       renderDialog("config");
       modalActionBtnEle.addEventListener("click", dialogActionHandler);
@@ -485,7 +491,9 @@ function setShowDialog(state) {
     case "insufficient":
       game.dialog = {
         state: "insufficient",
-        message: "Insufficient letters!",
+        header: "Incomplete Word",
+        message:
+          "You need more letters to complete the word. Please try again.",
         buttonMessage: "Ok",
       };
       renderDialog("insufficient");
@@ -495,7 +503,8 @@ function setShowDialog(state) {
     case "invalid":
       game.dialog = {
         state: "invalid",
-        message: "Invalid word!",
+        header: "Word not recognized",
+        message: `The word ${game.currentGuess} is not in the dictionary. Please enter a valid word.`,
         buttonMessage: "Ok",
       };
       renderDialog("invalid");
@@ -515,11 +524,12 @@ function setShowDialog(state) {
 wordLengthEventHandler;
 
 function renderDialog() {
+  const modalHeaderEle = document.querySelector(".modal-header");
   const modalMessageEle = document.querySelector(".modal-message");
   const modalActionBtnEle = document.querySelector(".modal-action-btn");
   if (game.dialog.state === "config") {
+    modalHeaderEle.innerHTML = `<h1 class="modal-header">Configure game</h1>`;
     modalMessageEle.innerHTML = `<div class="slider-wrapper">
-        <h1 class="slider-header">Guess a ${game.wordLength} letter word in ${game.maxTries} tries</h1>
         <div class="slider">
           <label class="slider-label">Word length:&nbsp;</label>
           <input data-slider-type='word-length' class="slider-input" type="range" min="4" max="6" value="${game.wordLength}" step="1" oninput="wordLengthEventHandler(this.value)"
@@ -536,6 +546,7 @@ function renderDialog() {
     modalActionBtnEle.innerText = game.dialog.buttonMessage;
     return;
   }
+  modalHeaderEle.innerText = game.dialog.header;
   modalMessageEle.innerText = game.dialog.message;
   modalActionBtnEle.innerText = game.dialog.buttonMessage;
 }
@@ -824,7 +835,7 @@ function evaluateUserGuess(userGuessArr) {
   ) {
     setTimeout(() => setShowDialog("victory"), 2000);
   } else if (game.currentTries === game.maxTries) {
-    setShowDialog("defeat");
+    setTimeout(() => setShowDialog("defeat"), 2000);
   }
   renderTileColors(result);
   renderKeyBoardColors();
