@@ -1,26 +1,3 @@
-// const { evaluateUserGuess } = require("./helper.js");
-// import { evaluateUserGuess } from "./helper.js";
-
-/*-------------------------------- Constants --------------------------------*/
-// const WORDS = {
-//   fourLetters: ["glad", "joys", "glee", "hope", "love", "hugs", "play", "good"],
-//   fiveLetters: [
-//     "peace",
-//     "happy",
-//     "relax",
-//     "stars",
-//     "smile",
-//     "laugh",
-//     "cheer",
-//     "merry",
-//     "alloy",
-//     "annal",
-//     "annul",
-//     "banal",
-//   ],
-//   sixLetters: ["joyful", "smiley", "gaiety", "blithe", "cheery", "jovial"],
-// };
-
 import { WORDS } from "./prod-data.js";
 
 const BOARD_ROW_ATTRIBUTES = {
@@ -75,49 +52,23 @@ const resetBtnEle = document.querySelector(".reset-btn");
 const configBtnEle = document.querySelector(".config-btn");
 /*---------------------------- Render Functions -----------------------------*/
 
-// function setGameStatus(status) {
-//   if (status === "win") {
-//     game.status = { win: true, lose: false, pending: false };
-//   } else if (status === "lose") {
-//     game.status = { win: false, lose: true, pending: false };
-//   } else if (status === "pending") {
-//     game.status = { win: false, lose: false, pending: true };
-//   } else if (status === "error") {
-//     game.status = { win: false, lose: false, pending: true, error: true };
-//   }
-// }
-
-// function sliderInputHandler(e) {
-//   console.log("slider input handler ran");
-//   if (e.target.dataset.sliderType === "word-length") {
-//     game.wordLength = +e.target.value;
-//     renderDialog();
-//   } else if (e.target.dataset.sliderType === "tries") {
-//     game.maxTries = +e.target.value;
-//     renderDialog();
-//   }
-// }
-
-// function renderGameStatus() {
-//   gameStatusEle.innerText = JSON.stringify(game, null, 1);
-// }
-
 function setInitialBoardState() {
   game.board = [];
   for (let i = 0; i < game.maxTries; i++) {
     game.board.push([]);
   }
-  // console.log("setting initial board state...", game);
 }
 
 function renderTileContents() {
   const boardRowEles = document.querySelectorAll(".board-row");
   const currentBoardRow = boardRowEles[game.currentRowIndex];
   const currentRowTiles = Array.from(currentBoardRow.children);
-  currentRowTiles.forEach(
-    (i, idx) =>
-      (i.value = game.board[game.currentRowIndex][idx]?.toUpperCase() || "")
-  );
+  console.log("rendering current row tiles", currentRowTiles);
+  console.log("rendering game board", game.board);
+  currentRowTiles.forEach((i, idx) => {
+    console.log("rendering tile ", idx, game.board[game.currentRowIndex]);
+    i.value = game.board[game.currentRowIndex][idx]?.toUpperCase() || "";
+  });
 }
 
 function renderTileColors(evaluatedGuess) {
@@ -130,7 +81,6 @@ function renderTileColors(evaluatedGuess) {
 }
 
 function renderInitialBoard() {
-  console.log("running render initial board..");
   function setRowAttr(ele, attrObj, i) {
     Object.entries(attrObj).forEach(([k, v]) => {
       k === "aria-label"
@@ -185,42 +135,46 @@ function setBoardState(type, letter) {
       "Error in setBoardState: 'letter' is undefined. Expected a letter or 'e.target.value' when type is 'add'"
     );
   let currentGuess = game.board[game.currentRowIndex];
-  type === "delete" ? currentGuess.pop() : currentGuess.push(letter);
+  if (type === "delete") {
+    currentGuess.pop();
+    console.log("POPPING OUT OF BOARD STATE");
+  } else if (type === "add") {
+    currentGuess.push(letter);
+    console.log("PUSHING INTO BOARD STATE");
+  } else {
+    console.log("PUSHING ERROR");
+  }
+
   game.board[game.currentRowIndex] = currentGuess;
 }
 
-function evaluateGuess(arr) {
-  console.log("game.answer", game.answer);
-  console.log(game);
-  console.log(game.currentTries);
-  console.log(game.maxTries);
-  const evaluatedGuess = arr.reduce(
-    (a, c, i) =>
-      c === game.answer[i]
-        ? a.concat("correct")
-        : game.answer.includes(c)
-        ? a.concat("exists")
-        : a.concat("wrong"),
-    []
-  );
+// function evaluateGuess(arr) {
+//   console.log("game.answer", game.answer);
+//   const evaluatedGuess = arr.reduce(
+//     (a, c, i) =>
+//       c === game.answer[i]
+//         ? a.concat("correct")
+//         : game.answer.includes(c)
+//         ? a.concat("exists")
+//         : a.concat("wrong"),
+//     []
+//   );
 
-  game.evaluatedBoard.push(evaluatedGuess);
-  if (
-    evaluatedGuess.every((i) => i === "correct") &&
-    game.currentTries <= game.maxTries
-  ) {
-    setTimeout(() => setShowDialog("victory"), 2000);
-  } else if (game.currentTries === game.maxTries) {
-    setShowDialog("defeat");
-  }
-  renderTileColors(evaluatedGuess);
-  renderKeyBoardColors();
-}
+//   game.evaluatedBoard.push(evaluatedGuess);
+//   if (
+//     evaluatedGuess.every((i) => i === "correct") &&
+//     game.currentTries <= game.maxTries
+//   ) {
+//     setTimeout(() => setShowDialog("victory"), 2000);
+//   } else if (game.currentTries === game.maxTries) {
+//     setShowDialog("defeat");
+//   }
+//   renderTileColors(evaluatedGuess);
+//   renderKeyBoardColors();
+// }
 
 function renderKeyBoardColors() {
-  console.log("rendering keyboard colors");
   const flattenedBoard = game.board.reduce((a, c) => a.concat(c), []);
-  console.log({ flattenedBoard });
   const flattenedEvaluatedBoard = game.evaluatedBoard.reduce(
     (a, c) => a.concat(c),
     []
@@ -237,7 +191,6 @@ function renderKeyBoardColors() {
   }
 
   const guessObj = flattenedBoard.reduce((a, c, i) => {
-    console.log("hai", c, findPreviousEvaluatedResults(i, c));
     if (
       flattenedEvaluatedBoard[i] !== "correct" &&
       flattenedBoard.slice(0, i).includes(c) &&
@@ -266,29 +219,10 @@ function renderKeyBoardColors() {
       return { ...a, [c]: flattenedEvaluatedBoard[i] };
     }
   }, {});
-  // const guessObj = flattenedBoard.reduce(
-  //   (a, c, i) =>
-  //     flattenedEvaluatedBoard[i] === "correct"
-  //       ? a
-  //       : { ...a, [c]: flattenedEvaluatedBoard[i] },
-  //   {}
-  // );
-  // const guessObj = flattenedBoard.reduce(
-  //   (a, c, i) => ({ ...a, [c]: flattenedEvaluatedBoard[i] }),
-  //   {}
-  // );
   const keyBoardKeys = document.querySelectorAll(".key");
-  console.log({ guessObj });
   keyBoardKeys.forEach((i) => {
     if (Object.keys(guessObj).includes(i.innerText.toLowerCase())) {
-      console.log(
-        "adding ",
-        guessObj[i.innerText.toLowerCase()],
-        " to ",
-        i.innerText
-      );
       i.classList = `key ${guessObj[i.innerText.toLowerCase()]}`;
-      // i.classList.add(guessObj[i.innerText.toLowerCase()]);
     } else {
       return;
     }
@@ -304,6 +238,8 @@ function generateAnswer() {
 
 function cachePreviousTiles() {
   if (game.board[game.currentRowIndex].length < game.wordLength + 1) {
+    console.log("caching", document.activeElement);
+
     game.previousTiles.push(document.activeElement);
   } else {
     console.log("Something went wrong");
@@ -332,7 +268,6 @@ function generateWordBank(wordLength) {
 
 function updateTries() {
   if (!game.isValidGuess) {
-    console.log("NOT NOO");
     return;
   }
   game.currentTries += 1;
@@ -360,15 +295,18 @@ function init() {
   console.log(game);
 }
 
-// function focusNextTile(ele) {
-//   if (!ele.value) return;
-//   ele.nextElementSibling?.focus();
-// }
-
 function focusPreviousTile() {
   // TODO this needs improvement esp after closing modal...
-  if (game.previousTiles.length < 2) return;
-  game.previousTiles.at(-1).focus();
+
+  // if (game.previousTiles.length < 2) {
+  //   return;
+  // }
+  // game.previousTiles.at(-1).focus();
+  // document.activeElement.focus();
+  const lastActiveTile = game.previousTiles.at(-1);
+  if (lastActiveTile) {
+    lastActiveTile.focus();
+  }
 }
 
 function checkGuessValidity(rowEle) {
@@ -382,17 +320,13 @@ function checkGuessValidity(rowEle) {
     return;
   } else if (!game.wordBank.includes(currentGuessString)) {
     game.isValidGuess = false;
-    console.log("opps", currentGuessString);
     setShowDialog("invalid");
-    // window.alert(`${currentGuessString} is not a word`); // check validity
     enableTiles(rowEle);
     focusPreviousTile();
     return;
   } else {
-    console.log("Guess is valid!");
     disableTiles(rowEle);
     game.isValidGuess = true;
-    console.log("Setting guess to valid", game.isValidGuess);
   }
 }
 /*----------------------------- Event Listeners -----------------------------*/
@@ -418,7 +352,6 @@ function wordLengthEventHandler(val) {
   game.wordLength = +val;
   renderWordLengthValue();
   renderDialog(game.dialog.state);
-  console.log("running render initial board from word length event handler");
   renderInitialBoard();
 }
 
@@ -426,8 +359,6 @@ function maxTriesEventHandler(val) {
   game.maxTries = +val;
   renderMaxTriesValue();
   renderDialog(game.dialog.state);
-  console.log("running render initial board from max tries event handler");
-
   renderInitialBoard();
 }
 
@@ -504,7 +435,9 @@ function setShowDialog(state) {
       game.dialog = {
         state: "invalid",
         header: "Word not recognized",
-        message: `The word ${game.currentGuess} is not in the dictionary. Please enter a valid word.`,
+        message: `The word "${game.board[game.currentRowIndex].join(
+          ""
+        )}" is not in the dictionary. Please enter a valid word.`,
         buttonMessage: "Ok",
       };
       renderDialog("invalid");
@@ -557,45 +490,17 @@ function renderInitialKeyBoard() {
 }
 
 function dialogActionHandler() {
-  if (game.dialog.state === "reset") {
+  if (game.dialog.state === "invalid" || game.dialog.state === "insufficient") {
     modalEle.close();
-    game.currentRowIndex = 0;
-    game.currentTries = 0;
-    game.evaluatedBoard = [];
-    renderInitialBoard();
-    renderInitialKeyBoard();
-    init();
-  } else if (game.dialog.state === "victory") {
-    modalEle.close();
-    game.currentRowIndex = 0;
-    game.currentTries = 0;
-    game.evaluatedBoard = [];
-    renderInitialBoard();
-    renderInitialKeyBoard();
-    init();
-  } else if (game.dialog.state === "defeat") {
-    modalEle.close();
-    game.currentRowIndex = 0;
-    game.currentTries = 0;
-    game.evaluatedBoard = [];
-    renderInitialBoard();
-    renderInitialKeyBoard();
-    init();
-  } else if (game.dialog.state === "config") {
-    modalEle.close();
-    game.currentRowIndex = 0;
-    game.currentTries = 0;
-    game.evaluatedBoard = [];
-    renderInitialBoard();
-    renderInitialKeyBoard();
-    init();
-  } else if (
-    game.dialog.state === "invalid" ||
-    game.dialog.state === "insufficient"
-  ) {
-    modalEle.close();
+    focusPreviousTile();
   } else {
-    console.log("modal action btn handler error");
+    modalEle.close();
+    game.currentRowIndex = 0;
+    game.currentTries = 0;
+    game.evaluatedBoard = [];
+    renderInitialBoard();
+    renderInitialKeyBoard();
+    init();
   }
 }
 
@@ -616,7 +521,6 @@ function registerTileEventListeners() {
   boardRowEles.forEach((rowEle) =>
     // converts html collection to array
     Array.from(rowEle.children).forEach((tileEle) => {
-      console.log("registering tile ele");
       tileEle.addEventListener("keydown", (e) => keyDownHandler(e, rowEle));
       tileEle.addEventListener("input", inputEventHandler);
       tileEle.addEventListener("keyup", keyUpHandler);
@@ -626,41 +530,32 @@ function registerTileEventListeners() {
 
 function backSpaceHandler(e) {
   if (e.repeat) {
-    console.log("returning from backSpaceHandler");
     return;
   }
   if (e.key === "Backspace") {
     game.isBackSpace = true;
     setBoardState("delete");
     renderTileContents();
-    console.log("exiting from backSpaceHandler");
   } else {
     game.isBackSpace = false;
-    console.log("exiting from backSpaceHandler");
   }
-  console.log("exiting from backSpaceHandler");
 }
 
 function enterKeyHandler(e, rowEle) {
   if (e.repeat || e.key !== "Enter") {
-    console.log("exiting from enterKeyHandler");
     return;
   }
 
   checkGuessValidity(rowEle);
-  console.log("exiting from enterKeyHandler");
 
   if (!game.isValidGuess) {
-    console.log("exiting from enterKeyHandler");
     return;
   }
   updateTries();
   // evaluateGuess(game.board[game.currentRowIndex]);
   evaluateUserGuess(game.board[game.currentRowIndex]);
-  console.log("exiting from enterKeyHandler");
   game.currentRowIndex++; //TODO put in func
   focusFirstTile();
-  console.log("exiting from enterKeyHandler");
 }
 
 function keyDownHandler(e, rowEle) {
@@ -672,6 +567,7 @@ function keyDownHandler(e, rowEle) {
     enterKeyHandler(e, rowEle);
     return;
   }
+
   const input = String.fromCharCode(e.keyCode);
   if (!/^[a-zA-Z]*$/.test(input)) {
     /* https://stackoverflow.com/questions/2257070/detect-numbers-or-letters-with-jquery-javascript */
@@ -679,29 +575,44 @@ function keyDownHandler(e, rowEle) {
   }
   game.isBackSpace = false;
   cachePreviousTiles();
-  e.target.nextElementSibling?.focus();
+  console.log("FINAL BASE OF KEY DOWN HANDLER");
+  if (e.target.nextElementSibling) {
+    console.log("e.target", e.target);
+    console.log("current active", document.activeElement);
+    console.log("e.target.nextElementSibling", e.target.nextElementSibling);
+    console.log("focusing on this now: ", e.target.nextElementSibling);
+    e.target.nextElementSibling.focus();
+  } else {
+    e.target.focus();
+    console.log("no nextSibling, focusing self,", e.target);
+  }
 }
 
 function inputEventHandler(e) {
+  console.log("INPUT HANDLER RUNNING");
+
   if (game.isBackSpace) {
+    console.log("RETURNING FROM PUSHING");
     return;
   }
-  if (game.board[game.currentRowIndex].length < game.wordLength + 1) {
+  if (game.board[game.currentRowIndex].length < game.wordLength) {
+    console.log("SETTING PUSHING STATE");
     setBoardState("add", e.target.value);
     // e.target.nextElementSibling?.focus();
+    console.log("SETTING BOARD STATE", game.board);
     renderTileContents();
     return;
+  } else if (e.target.maxLength === e.target.value.length) {
+    console.log("PUSHING FAILED");
   }
 }
 
-// TODO on window focus then focus last active
-// disbale on focus next for non alphabets
+// TODO on window focus then focus last active and disbale on focus next for non alphabets
 
 function keyUpHandler(e) {
   if (e.key === "Backspace") {
-    // console.log("keyup ran...");
     game.isBackSpace = true;
-    e.target.previousElementSibling?.focus();
+    e.target.previousElementSibling.focus();
     return;
   } else {
     game.isBackSpace = false;
@@ -725,12 +636,10 @@ function evaluateUserGuess(userGuessArr) {
   }
 
   const duplicatedLettersInUserGuessObj = findDuplicateLetters(userGuessArr);
-  console.log(duplicatedLettersInUserGuessObj); // ['a','l','l','o','y'] ===> {l: 2}
 
   const duplicatedLettersInGameAnswerObj = findDuplicateLetters(
     game.answer.split("")
   );
-  console.log(duplicatedLettersInGameAnswerObj); // 'banal' ====> {a :2}
 
   function isInAnyCorrectPosition(firstArr, secondArr, letter) {
     const indexOfLetterInFirstArr = firstArr.reduce(
@@ -752,15 +661,9 @@ function evaluateUserGuess(userGuessArr) {
     return arr.includes(letter);
   }
 
-  console.log(
-    "HERE",
-    isInAnyCorrectPosition(game.answer.split(""), userGuessArr, "n")
-  );
-
   let hasAccountedForTwoDupeGuessLetterBothWrongPosition = false;
 
   const result = userGuessArr.reduce((a, c, idx) => {
-    // GUESS alloy
     const isCurrentGuessLetterDupe = Object.keys(
       findDuplicateLetters(userGuessArr)
     ).includes(c);
@@ -768,7 +671,6 @@ function evaluateUserGuess(userGuessArr) {
     if (isCurrentGuessLetterDupe) {
       currentGuessLetterDupeCount = duplicatedLettersInUserGuessObj[c];
     }
-    // ANSWER banal
     const currentAnswerLetter = game.answer[idx];
     const isCurrentAnswerLetterDupe = Object.keys(
       findDuplicateLetters(game.answer.split(""))
@@ -778,9 +680,6 @@ function evaluateUserGuess(userGuessArr) {
       currentAnswerLetterDupeCount =
         duplicatedLettersInGameAnswerObj[currentAnswerLetter];
     }
-
-    ///
-
     function existsMoreInGuessThanAnswer() {
       return (
         currentGuessLetterDupeCount >
@@ -799,27 +698,22 @@ function evaluateUserGuess(userGuessArr) {
       existsInAnswer(game.answer.split(""), c)
     ) {
       hasAccountedForTwoDupeGuessLetterBothWrongPosition = true;
-      // console.log("EXISTS 0");
       return a.concat("exists");
     } else if (
       isCurrentGuessLetterDupe &&
       existsInAnswer(game.answer.split(""), c) &&
       existsMoreInGuessThanAnswer()
     ) {
-      // console.log("WRONG -1");
       return a.concat("wrong");
     } else if (
       isCurrentGuessLetterDupe &&
       game.answer.split("").includes(c) &&
       userGuessArr.slice(0, idx + 1).filter((i) => i === c).length < 2
     ) {
-      // console.log("EXISTS 3");
       return a.concat("exists");
     } else if (existsInAnswer(game.answer.split(""), c)) {
-      // console.log("EXISTS 4");
       return a.concat("exists");
     } else if (!existsInAnswer(game.answer.split(""), c)) {
-      // console.log("WRONG 2");
       return a.concat("wrong");
     } else {
       return a.concat("tbd");
@@ -827,7 +721,6 @@ function evaluateUserGuess(userGuessArr) {
   }, []);
 
   game.evaluatedBoard = [...game.evaluatedBoard, result];
-  // game.evaluatedBoard.push(result);
   console.log("evaluatedBoard", game.evaluatedBoard);
   if (
     result.every((i) => i === "correct") &&
@@ -844,15 +737,3 @@ function evaluateUserGuess(userGuessArr) {
 }
 
 init();
-
-function renderDialog2() {
-  console.log("render Dialog");
-  const modalMessageEle = document.querySelector(".modal-message");
-  modalMessageEle.innerHTML = `<div class="slider-wrapper">
-      <input type="range" min="4" max="6" value="${game.wordLength}" step="1" oninput="wordLengthEventHandler(this.value)"/>
-      <span>${game.wordLength}</span>
-    </div>`;
-}
-
-// Initial render
-renderDialog2();

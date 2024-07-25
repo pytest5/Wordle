@@ -75,17 +75,20 @@ body {
   display: flex;
   flex-direction: column;
   height: 100%;
+  padding-top: 0px;
+  padding-bottom: 0px;
 }
 
 .main-container {
   width: 100%;
-  height: 100%;
+  /* height: 100%; */
+  /* height: 400px; */
   display: flex;
+  height: 100%;
   flex-direction: column;
-  gap: 14px;
-  justify-content: space-around;
+  gap: 8px;
   align-items: center;
-  border: 1px solid red;
+  justify-content: space-between;
 }
 
 .title {
@@ -95,34 +98,45 @@ body {
 .board-container {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 5px;
   width: 100%;
   padding: 0px 10px;
   padding-top: 10px;
   align-self: center;
+  flex-grow: 1;
+  justify-content: center;
+  /* max-height: 420px; */
+}
+
+.board-row {
+  display: flex;
+  gap: 5px;
+  justify-content: center;
+  align-items: center;
 }
 
 .keyboard-container {
   display: flex;
   flex-direction: column;
-  gap: 10px 0px;
-}
-
-.board-row {
-  display: flex;
-  gap: 10px;
-  justify-content: center;
+  gap: 5px 0px;
+  height: 200px;
+  width: 100%;
 }
 
 .tile {
-  flex: 1;
-  aspect-ratio: 1/1;
   text-align: center;
   font-size: 24px;
   font-weight: 900;
   min-width: 0px;
-  max-width: 65px;
-  border-radius: 10px;
+  /* max-height: 52px; */
+
+  /* width: 0px; */
+  /* max-width: 65px; */
+  border-radius: 6px;
+  border: 1px solid rgb(78, 75, 75);
+  /* width: 100%; */
+  aspect-ratio: 1/1;
+  /* display: inline-flex; */
   /* border: 2px solid deeppink; */
 }
 
@@ -337,14 +351,13 @@ body {
 
 input[type="range"] {
   accent-color: rgb(91, 91, 95);
-  /* -webkit-appearance: none; */
   background-color: white;
 }
 
 nav {
   display: flex;
   justify-content: space-between;
-  padding: 0 10px 10px 10px;
+  padding: 0 10px 0px 10px;
   align-items: center;
   border-bottom: 0.5px solid deeppink;
 }
@@ -355,16 +368,23 @@ nav {
   cursor: pointer;
 }
 
-@media (min-width: calc(550px/16)) {
+@media (max-width: 375px) {
+  .tile {
+    max-height: 52px;
+  }
+}
+@media (min-width: 375px) {
   .board-container {
     max-width: 380px;
+  }
+}
+
+@media (min-width: 550px) {
+  nav {
+    padding: 10px 0px;
   }
 
   .keyboard-container {
     width: min(550px, 100%);
   }
-
-  /* .material-icons TODO
-    font-size: 32px;
-  } */
 }
