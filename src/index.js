@@ -166,6 +166,8 @@ function focusFirstTile() {
   const boardRowEles = document.querySelectorAll(".board-row");
   const currentBoardRow = boardRowEles[game.currentRowIndex]; // TODO: check
   const currentRowTiles = Array.from(currentBoardRow?.children);
+  console.log("focusing first tile", currentRowTiles[0]);
+
   currentRowTiles[0].focus();
 }
 
@@ -221,21 +223,41 @@ function renderKeyBoardColors() {
     (a, c) => a.concat(c),
     []
   );
-  console.log({ flattenedEvaluatedBoard });
+
+  function findPreviousEvaluatedResults(idx, cur) {
+    const prevEvaluations = flattenedEvaluatedBoard.slice(0, idx); // [wrong,exists,wrong,correct]
+    const prevBoard = flattenedBoard.slice(0, idx); // [h,a,p,p]
+    return prevBoard.reduce(
+      (a, c, i) => (c === cur ? a.concat(prevEvaluations[i]) : a),
+      // (a, c, i) => a.concat(c === cur ? prevEvaluations[i] : []),
+      []
+    );
+  }
+
   const guessObj = flattenedBoard.reduce((a, c, i) => {
+    console.log("hai", c, findPreviousEvaluatedResults(i, c));
     if (
       flattenedEvaluatedBoard[i] !== "correct" &&
       flattenedBoard.slice(0, i).includes(c) &&
-      flattenedEvaluatedBoard[flattenedBoard.slice(0, i).indexOf(c)] ===
-        "correct"
+      findPreviousEvaluatedResults(i, c).includes("correct")
+      // flattenedEvaluatedBoard[flattenedBoard.slice(0, i).indexOf(c)] ===
+      //   "correct"
     ) {
-      // console.log("YO", flattenedBoard.slice(0, i), c, "index:", i);
+      return { ...a, [c]: "correct" };
+    } else if (
+      flattenedEvaluatedBoard[i] === "correct" &&
+      flattenedBoard.slice(0, i).includes(c) &&
+      findPreviousEvaluatedResults(i, c).includes("exists")
+      // flattenedEvaluatedBoard[flattenedBoard.slice(0, i).indexOf(c)] ===
+      //   "exists"
+    ) {
       return { ...a, [c]: "correct" };
     } else if (
       flattenedEvaluatedBoard[i] !== "correct" &&
       flattenedBoard.slice(0, i).includes(c) &&
-      flattenedEvaluatedBoard[flattenedBoard.slice(0, i).indexOf(c)] ===
-        "exists"
+      findPreviousEvaluatedResults(i, c).includes("exists")
+      // flattenedEvaluatedBoard[flattenedBoard.slice(0, i).indexOf(c)] ===
+      //   "exists"
     ) {
       return { ...a, [c]: "exists" };
     } else {
@@ -349,6 +371,7 @@ function focusPreviousTile() {
 
 function checkGuessValidity(rowEle) {
   const currentGuessString = game.board[game.currentRowIndex].join("");
+  console.log({ currentGuessString });
   if (game.board[game.currentRowIndex].length < game.wordLength) {
     game.isValidGuess = false;
     setShowDialog("insufficient");
@@ -357,6 +380,7 @@ function checkGuessValidity(rowEle) {
     return;
   } else if (!game.wordBank.includes(currentGuessString)) {
     game.isValidGuess = false;
+    console.log("opps", currentGuessString);
     setShowDialog("invalid");
     // window.alert(`${currentGuessString} is not a word`); // check validity
     enableTiles(rowEle);
@@ -370,9 +394,23 @@ function checkGuessValidity(rowEle) {
   }
 }
 /*----------------------------- Event Listeners -----------------------------*/
-// TODO solve bug when enter pressed too many times consecutively...
 
-//// NEW EVENT LISTENERS //////
+// attach functions to global scope, which is the windows object
+window.wordLengthEventHandler = wordLengthEventHandler;
+window.maxTriesEventHandler = maxTriesEventHandler;
+
+document.querySelectorAll(".key").forEach((i) =>
+  i.addEventListener("click", (e) => {
+    if (i.dataset.value === "ENTER") {
+      enterKeyHandler({ key: "Enter" }, boardRowEles[game.currentRowIndex]); // e , currentRowEle
+    } else if (i.dataset.value === "BACKSPACE") {
+      backSpaceHandler({ key: "Backspace" });
+    } else {
+      setBoardState("add", i.dataset.value);
+    }
+    renderTileContents();
+  })
+);
 
 function wordLengthEventHandler(val) {
   game.wordLength = +val;
@@ -474,6 +512,7 @@ function setShowDialog(state) {
       break;
   }
 }
+wordLengthEventHandler;
 
 function renderDialog() {
   const modalMessageEle = document.querySelector(".modal-message");
@@ -548,8 +587,6 @@ function dialogActionHandler() {
     console.log("modal action btn handler error");
   }
 }
-
-// TO DO link INPUT VALUE TO SLIDER
 
 resetBtnEle.addEventListener("click", (e) => {
   setShowDialog("reset");
@@ -796,3 +833,15 @@ function evaluateUserGuess(userGuessArr) {
 }
 
 init();
+
+function renderDialog2() {
+  console.log("render Dialog");
+  const modalMessageEle = document.querySelector(".modal-message");
+  modalMessageEle.innerHTML = `<div class="slider-wrapper">
+      <input type="range" min="4" max="6" value="${game.wordLength}" step="1" oninput="wordLengthEventHandler(this.value)"/>
+      <span>${game.wordLength}</span>
+    </div>`;
+}
+
+// Initial render
+renderDialog2();
