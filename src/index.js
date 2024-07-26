@@ -85,6 +85,7 @@ function renderInitialBoard() {
         : ele.setAttribute(k, v);
     });
   }
+
   function setTileAttr(ele, attrObj, i) {
     Object.entries(attrObj).forEach(([k, v]) => {
       k === "aria-label"
@@ -283,7 +284,7 @@ function init() {
   generateWordBank(game.wordLength);
   generateAnswer(game.wordLength);
   focusFirstTile();
-  console.log(game);
+  // console.log(game);
 }
 
 function focusPreviousTile() {
